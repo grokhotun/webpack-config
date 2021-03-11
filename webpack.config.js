@@ -12,13 +12,21 @@ const isDevelopment = !isProduction
 
 const filename = ext => (isDevelopment ? `[name].${ext}` : `[name].[fullhash].${ext}`)
 
-const getBabelOptions = () => {
+const getBabelOptions = (presets = []) => {
   const options = {
     presets: [
-      '@babel/preset-env'
+      '@babel/preset-env',
+      '@babel/preset-react'
     ],
     plugins: [
       '@babel/plugin-proposal-class-properties'
+    ]
+  }
+
+  if (presets.length) {
+    options.presets = [
+      ...options.presets,
+      ...presets
     ]
   }
 
@@ -90,7 +98,9 @@ module.exports = {
     extensions: ['.js'],
     // Создаем алиасы для импортов
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@containers': path.resolve(__dirname, 'src/containers')
     }
   },
   // Добавляем source-maps в режиме разработке
@@ -116,12 +126,22 @@ module.exports = {
         test: /\.s[ac]ss$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
       },
-      // Пропускаем все js файлы через babel чтобы превратить
+      // Пропускаем все js/jsx файлы через babel чтобы превратить
       // js код в стандарт, который будут понимать все браузеры
       {
-        test: /\.js$/,
+        test: /\.js[x]$/,
         exclude: /node_modules/,
         use: getJsLoaders()
+      },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: getBabelOptions(['@babel/preset-typescript'])
+          }
+        ]
       }
     ]
   }
