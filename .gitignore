@@ -1,0 +1,8 @@
+node_modules
+build
+# Файлы от Yarn
+package-lock.json
+yarn*
+# Всякое от VSCode
+.vscode
+jsconfig.json
